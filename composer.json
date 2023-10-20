@@ -1,0 +1,31 @@
+{
+  "name": "jelle-s/aoc",
+  "description": "Basic commands for AOC scaffolding",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Jelle Sebreghts",
+      "email": "sebreghts.jelle@gmail.com"
+    }
+  ],
+  "minimum-stability": "stable",
+  "autoload": {
+    "psr-4": {
+      "Jelle_S\\AOC\\": "src/"
+    }
+  },
+  "bin": [
+    "bin/aoc"
+  ],
+  "require": {
+    "php": ">=8.1",
+    "symfony/console": "^6.3",
+    "symfony/dotenv": "^6.3",
+    "symfony/filesystem": "^6.3",
+    "guzzlehttp/guzzle": "^7.8",
+    "symfony/dom-crawler": "^6.3",
+    "symfony/css-selector": "^6.3",
+    "league/html-to-markdown": "^5.1",
+    "symfony/validator": "^6.3"
+  }
+}

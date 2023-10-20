@@ -1,0 +1,20 @@
+{
+    "name": "jelle-s/aoc##YEAR##",
+    "description": "AOC solutions for ##YEAR##",
+    "type": "project",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Jelle_S\\AOC\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Jelle Sebreghts",
+            "email": "sebreghts.jelle@gmail.com"
+        }
+    ],
+    "require": {
+        "jelle-s/aoc": "^1.0.0"
+    }
+}

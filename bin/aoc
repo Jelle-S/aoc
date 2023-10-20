@@ -1,0 +1,35 @@
+#!/usr/bin/env php
+<?php
+
+// Autoloader.
+$autoloader = $_composer_autoload_path ?? __DIR__ . '/../vendor/autoload.php';
+$loaded = false;
+
+if (is_file($autoloader)) {
+    require_once($autoloader);
+    $loaded = true;
+}
+if (!$loaded) {
+    fwrite(STDERR,
+        'You must set up the project dependencies, run the following commands:' . PHP_EOL .
+        'curl -s http://getcomposer.org/installer | php' . PHP_EOL .
+        'php composer.phar install' . PHP_EOL
+    );
+    exit(1);
+}
+
+use Jelle_S\AOC\Command\Init;
+use Jelle_S\AOC\Command\InitProject;
+use Jelle_S\AOC\Command\Run;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Dotenv\Dotenv;
+
+(new Dotenv())->bootEnv('./.env');
+
+$application = new Application();
+
+$application->add(new Init());
+$application->add(new InitProject());
+$application->add(new Run());
+
+$application->run();
