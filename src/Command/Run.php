@@ -81,7 +81,7 @@ class Run extends Command {
       return Command::FAILURE;
     }
 
-    if (!is_a($puzzleClass, PuzzleInterface::class)) {
+    if (!is_a($puzzleClass, PuzzleInterface::class, true)) {
       $io->error("Class $puzzleClass does not implement " . PuzzleInterface::class);
     }
 
