@@ -7,6 +7,7 @@ use League\HTMLToMarkdown\HtmlConverter;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Validator\Constraints\Range;
@@ -22,7 +23,8 @@ class Run extends Command {
       ->setDescription('Run a puzzle solution.')
       ->addArgument('part', InputArgument::OPTIONAL, 'The part of the puzzle, defaults to part 1', 1)
       ->addArgument('day', InputArgument::OPTIONAL, 'The day of the puzzle, defaults to the current day')
-      ->addArgument('year', InputArgument::OPTIONAL, 'The year of the puzzle, defaults to the current year');
+      ->addArgument('year', InputArgument::OPTIONAL, 'The year of the puzzle, defaults to the current year')
+      ->addOption('sample', 's', InputOption::VALUE_OPTIONAL, 'Run the sample, not the input', false);
   }
 
   protected function validateInput(InputInterface $input) {
@@ -83,10 +85,11 @@ class Run extends Command {
 
     if (!is_a($puzzleClass, PuzzleInterface::class, true)) {
       $io->error("Class $puzzleClass does not implement " . PuzzleInterface::class);
+      return Command::FAILURE;
     }
 
-    $input = "src/AOC$year/Day$formattedDay/Resources/input.txt";
-    $io->info((new $puzzleClass($input))->solve());
+    $file = $input->getOption('sample') !== false ? "src/AOC$year/Day$formattedDay/Resources/sample.txt" : "src/AOC$year/Day$formattedDay/Resources/input.txt";
+    $io->info((new $puzzleClass($file))->solve());
     return 0;
   }
 
