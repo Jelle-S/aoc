@@ -15,6 +15,6 @@
         }
     ],
     "require": {
-        "jelle-s/aoc": "^1.0.0"
+        "jelle-s/aoc": "^2.0.0"
     }
 }

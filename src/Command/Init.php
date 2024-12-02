@@ -82,50 +82,74 @@ class Init extends Command {
     $year = (int) $input->getArgument('year');
     $day = (int) $input->getArgument('day');
     $part = (int) $input->getArgument('part');
-    $this->scaffold($year, $day, $part);
-
-    return 0;
+    return $this->scaffold($year, $day, $part, $io);
   }
 
-  protected function scaffold(int $year, int $day, int $part) {
+  protected function scaffold(int $year, int $day, int $part, SymfonyStyle $io) {
     $formattedDay = sprintf('%02d', $day);
     $dir = "src/AOC$year/Day$formattedDay";
-    $this->ensureDirectory($dir);
-    $this->ensurePuzzleClass($dir, $year, $formattedDay, $part);
-    $this->ensureSampleData($dir, $year, $day);
-    $this->ensureInputData($dir, $year, $day);
-    $this->ensureChallenge($dir, $year, $day, $part);
+    return (int) ($this->ensureDirectory($dir, $io)
+    && $this->ensurePuzzleClass($dir, $year, $formattedDay, $part, $io)
+    && $this->ensureSampleData($dir, $year, $day, $io)
+    && $this->ensureInputData($dir, $year, $day, $io)
+    && $this->ensureChallenge($dir, $year, $day, $part, $io));
   }
 
-  protected function ensureDirectory(string $dir) {
+  protected function ensureDirectory(string $dir, SymfonyStyle $io) {
+    if ($this->fileSystem->exists($dir)) {
+      $io->info("$dir already exists.");
+
+      return true;
+    }
+
     $this->fileSystem->mkdir($dir);
+    $io->info("Created directory $dir.");
+
+    return true;
   }
 
-  protected function ensurePuzzleClass(string $dir, int $year, string $day, int $part) {
+  protected function ensurePuzzleClass(string $dir, int $year, string $day, int $part, SymfonyStyle $io): bool {
     $contents = file_get_contents(__DIR__ . "/../../Resources/templates/puzzle/Puzzle$part.tpl");
+    if (file_exists("$dir/Puzzle$part.php") && !$io->confirm("File $dir/Puzzle$part.php exists. Do you want to overwrite?")) {
+      return false;
+    }
+
     $this->fileSystem->dumpFile(
       "$dir/Puzzle$part.php",
       str_replace(['##YEAR##', '##DAY##'], [$year, $day], $contents)
     );
+
+    $io->info("Created file $dir/Puzzle$part.php.");
+    return true;
   }
 
-  protected function ensureSampleData(string $dir, int $year, int $day) {
-    $this->ensureDirectory("$dir/Resources");
+  protected function ensureSampleData(string $dir, int $year, int $day, SymfonyStyle $io) {
+    $this->ensureDirectory("$dir/Resources", $io);
     $this->fileSystem->dumpFile("$dir/Resources/sample.txt", $this->client->getSample($year, $day));
+    $io->info("Created file $dir/Resources/sample.txt.");
+
+    return true;
   }
 
-  protected function ensureInputData(string $dir, int $year, int $day) {
-    $this->ensureDirectory("$dir/Resources");
+  protected function ensureInputData(string $dir, int $year, int $day, SymfonyStyle $io) {
+    $this->ensureDirectory("$dir/Resources", $io);
     $this->fileSystem->dumpFile("$dir/Resources/input.txt", $this->client->getInput($year, $day));
+    $io->info("Created file $dir/Resources/input.txt.");
+
+    return true;
   }
 
-  protected function ensureChallenge(string $dir, int $year, int $day, int $part) {
-    $this->ensureDirectory("$dir/Resources");
+  protected function ensureChallenge(string $dir, int $year, int $day, int $part, SymfonyStyle $io) {
+    $this->ensureDirectory("$dir/Resources", $io);
     $this->fileSystem->touch("$dir/Resources/challenge.md");
     $converter = new HtmlConverter();
     $this->fileSystem->appendToFile(
       "$dir/Resources/challenge.md",
       $converter->convert($this->client->getChallengeHTML($year, $day, $part)) . PHP_EOL . PHP_EOL
     );
+
+    $io->info("Created file $dir/Resources/challenge.md.");
+
+    return true;
   }
 }
