@@ -2,34 +2,28 @@
 
 namespace Jelle_S\AOC\Client;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Cookie\CookieJar;
-use GuzzleHttp\Psr7\Request;
 use Symfony\Component\DomCrawler\Crawler;
+use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 class AOCClient {
 
-  protected Client $client;
+  protected HttpClientInterface $client;
   protected Crawler $crawler;
 
-  protected const SESSION_DOMAIN = 'adventofcode.com';
   protected const DAY_URL = 'https://adventofcode.com/%d/day/%d';
 
   public function __construct() {
-    $cookies = CookieJar::fromArray(['session' => $_ENV['AOC_COOKIE']], self::SESSION_DOMAIN);
-    $this->client = new Client(['cookies' => $cookies]);
+    $this->client = HttpClient::create(['headers' => ['Cookie' => sprintf("%s=%s", 'session', $_ENV['AOC_COOKIE'])]]);
     $this->crawler = new Crawler();
   }
 
   public function getInput(int $year, int $day) {
-    $request = new Request('GET', sprintf(self::DAY_URL . '/input', $year, $day));
-
-    return $this->client->send($request)->getBody()->getContents();
+    return $this->client->request('GET', sprintf(self::DAY_URL . '/input', $year, $day))->getContent();
   }
 
   public function getChallengeHTML(int $year, int $day, int $part) {
-    $request = new Request('GET', sprintf(self::DAY_URL, $year, $day));
-    $html = $this->client->send($request)->getBody()->getContents();
+    $html = $this->client->request('GET', sprintf(self::DAY_URL, $year, $day))->getContent();
     $this->crawler->add($html);
     $result = $this->crawler->filter('main > article')->eq($part - 1)->html();
     $this->crawler->clear();
@@ -38,8 +32,7 @@ class AOCClient {
   }
 
   public function getSample(int $year, int $day) {
-    $request = new Request('GET', sprintf(self::DAY_URL, $year, $day));
-    $html = $this->client->send($request)->getBody()->getContents();
+    $html = $this->client->request('GET', sprintf(self::DAY_URL, $year, $day))->getContent();
     $this->crawler->add($html);
 
     $result = $this->crawler
